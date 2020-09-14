@@ -58,7 +58,7 @@ class SelectBestAnswer
 
         // If the best answer post isn't part of the current discussion, throw a friendly validation error.
         // Using $post hereon after to determine whether we are selecting a best answer.
-        if ($id && ! $post) {
+        if ($id && !$post) {
             throw new ValidationException(
                 [
                     'error' => app('translator')->trans('fof-best-answer.forum.errors.mismatch'),
