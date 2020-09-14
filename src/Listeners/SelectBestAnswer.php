@@ -47,16 +47,18 @@ class SelectBestAnswer
         }
 
         $discussion = $event->discussion;
-        $id = (int) Arr::get($event->data, $this->key);
+        /** @var int|null $id */
+        $id = Arr::get($event->data, $this->key);
 
-        if (!isset($id) || !$discussion->exists || $discussion->best_answer_post_id == $id) {
+        if (!$discussion->exists || $discussion->best_answer_post_id === $id) {
             return;
         }
 
         $post = $event->discussion->posts()->find($id);
 
-        // If 'id' = 0, then we are removing a best answer.
-        if ($id > 0 && !Helpers::postBelongsToTargetDiscussion($post, $discussion)) {
+        // If the best answer post isn't part of the current discussion, throw a friendly validation error.
+        // Using $post hereon after to determine whether we are selecting a best answer.
+        if ($id && ! $post) {
             throw new ValidationException(
                 [
                     'error' => app('translator')->trans('fof-best-answer.forum.errors.mismatch'),
@@ -64,18 +66,18 @@ class SelectBestAnswer
             );
         }
 
-        if ($post && (!Helpers::canSelectPostAsBestAnswer($event->actor, $post) || !$post->isVisibleTo($event->actor))) {
+        if ($post && !Helpers::canSelectPostAsBestAnswer($event->actor, $post) || !$post->isVisibleTo($event->actor)) {
             throw new PermissionDeniedException();
         }
 
-        if ($id > 0) {
-            $discussion->best_answer_post_id = $id;
+        if ($id) {
+            $discussion->best_answer_post_id = $post->id;
             $discussion->best_answer_user_id = $event->actor->id;
             $discussion->best_answer_set_at = Carbon::now();
 
             Notification::where('type', 'selectBestAnswer')->where('subject_id', $discussion->id)->delete();
             $this->notifyUsersOfBestAnswerSet($event);
-        } elseif ($id == 0) {
+        } else {
             $discussion->best_answer_post_id = null;
             $discussion->best_answer_user_id = null;
             $discussion->best_answer_set_at = null;

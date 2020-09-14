@@ -17,25 +17,24 @@ use Flarum\User\User;
 
 class Helpers
 {
-    public static function canSelectBestAnswer(User $user, Discussion $discussion)
+    public static function canSelectBestAnswer(User $user, Discussion $discussion): bool
     {
-        return $user->id == $discussion->user_id
+        return $user->id === $discussion->user_id
             ? $user->can('selectBestAnswerOwnDiscussion', $discussion)
             : $user->can('selectBestAnswerNotOwnDiscussion', $discussion);
     }
 
-    public static function canSelectPostAsBestAnswer(User $user, Post $post)
+    public static function canSelectPostAsBestAnswer(User $user, Post $post): bool
     {
-        $canSelectOwnPost = (bool) app('flarum.settings')->get('fof-best-answer.allow_select_own_post');
         $can = self::canSelectBestAnswer($user, $post->discussion);
 
-        return $user->id == $post->user_id
-            ? $canSelectOwnPost && $can
-            : $can;
-    }
+        // Block selecting best answer by the OP.
+        if ($user->id === $post->user_id) {
+            $canSelectOwnPost = (bool) app('flarum.settings')->get('fof-best-answer.allow_select_own_post');
 
-    public static function postBelongsToTargetDiscussion(Post $post, Discussion $discussion): bool
-    {
-        return $post && $post->discussion_id === $discussion->id;
+            return $canSelectOwnPost && $can;
+        }
+
+        return $can;
     }
 }
