@@ -7,7 +7,7 @@ use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
 use LogicException;
 
-class HasBestAnswerGambit extends AbstractRegexGambit
+class IsSolvedGambit extends AbstractRegexGambit
 {
     protected $pattern = 'is:solved';
 
@@ -18,11 +18,7 @@ class HasBestAnswerGambit extends AbstractRegexGambit
         }
 
         $search->getQuery()->where(function ($query) use ($negate) {
-            if ($negate) {
-                $query->whereNull('best_answer_post_id');
-            } else {
-                $query->whereNotNull('best_answer_post_id');
-            }
+            $query->whereNotNull('best_answer_post_id');
         });
     }
 }
