@@ -57,6 +57,7 @@ class AddApiAttributes
     public function prepareApiAttributes(Serializing $event)
     {
         if ($event->isSerializer(DiscussionSerializer::class)) {
+            $event->attributes['bestAnswerPostId'] = $event->model->best_answer_post_id;
             $event->attributes['canSelectBestAnswer'] = Helpers::canSelectBestAnswer($event->actor, $event->model);
             $event->attributes['hasBestAnswer'] = $event->model->bestAnswerPost()->exists();
             $event->attributes['startUserId'] = $event->model->user_id;
