@@ -21,6 +21,7 @@ use Flarum\Post\Post;
 use Flarum\User\User;
 use FoF\BestAnswer\Console\NotifyCommand;
 use FoF\BestAnswer\Events\BestAnswerSet;
+use FoF\BestAnswer\Listeners\AddGambits;
 use FoF\BestAnswer\Provider\ConsoleProvider;
 use FoF\Components\Extend\AddFofComponents;
 use FoF\Console\Extend\EnableConsole;
@@ -52,6 +53,7 @@ return [
 
     function (Dispatcher $events) {
         $events->subscribe(Listeners\AddApiAttributes::class);
+        $events->subscribe(AddGambits::class);
 
         $events->listen(ConfigureNotificationTypes::class, function (ConfigureNotificationTypes $event) {
             $event->add(Notification\SelectBestAnswerBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email']);
