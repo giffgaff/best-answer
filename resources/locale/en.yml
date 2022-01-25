@@ -31,3 +31,7 @@ fof-best-answer:
       preferences:
         awarded_best_answer: When someone sets my post as a best answer
         best_answer_in_discussion: When a best answer is set in a discussion I participated in
+
+  email:
+    subject:
+      select: Did you manage to get your question answered?
